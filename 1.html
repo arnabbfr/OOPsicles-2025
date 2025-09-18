@@ -1,0 +1,182 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>Civic Issues</title>
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+  <!-- Header -->
+  <header class="header">
+    <nav>
+      <a href="index.html" class="btn-outline">Home</a>
+      <a href="signup.html" class="btn-outline">Signup</a>
+    </nav>
+  </header>
+
+  <!-- Hero -->
+  <main>
+    <section class="container">
+      <h1>Report.</h1><br>
+      <h1>Track.</h1><br>
+      <h1>Resolve.</h1><br>
+      <p>
+        "Empowering communities to report civic issues with photos,<br>
+        location tagging, and real-time tracking, streamlining<br>
+        municipal response through smart tech."
+      </p>
+      <!-- Learn More changed to <a> -->
+      <a href="home.html" class="btn">Learn more</a>
+    </section>
+
+    <!-- Dashboard -->
+    <section class="dashboard">
+      <div class="cards-row">
+        <div class="card">
+          <h2>Cases Reported</h2>
+          <p>1578</p>
+        </div>
+        <div class="card">
+          <h2>Cases Resolved</h2>
+          <p>987</p>
+        </div>
+        <div class="card">
+          <h2>Resolution Rate</h2>
+          <p>62.5%</p>
+        </div>
+      </div>
+
+      <!-- Civic Issues Slider -->
+      <div class="slider-container">
+        <div class="slider-header">
+          <h2>Civic Issues Overview</h2>
+          <div class="slider-nav">
+            <button class="nav-btn prev-btn" onclick="changeSlide(-1)">❮</button>
+            <button class="nav-btn next-btn" onclick="changeSlide(1)">❯</button>
+          </div>
+        </div>
+        
+        <div class="slider-wrapper">
+          <div class="slider-track" id="sliderTrack">
+            <!-- Potholes Slide -->
+            <div class="slide active">
+              <div class="slide-content">
+                <div class="slide-image">
+                  <img src="https://gomechanic.in/blog/wp-content/uploads/2020/02/potholes-1000x563.jpg" alt="Road with potholes" />
+                </div>
+                <div class="slide-info">
+                  <h3>Potholes</h3>
+                  <div class="stats">
+                    <div class="stat-item">
+                      <span class="stat-number">6,880</span>
+                      <span class="stat-label">Average accidents per year</span>
+                    </div>
+                    <div class="stat-item">
+                      <span class="stat-number">2013-2022</span>
+                      <span class="stat-label">Data period</span>
+                    </div>
+                  </div>
+                  <p class="fact">
+                    An average of 6,880 accidents caused by potholes were reported each year between 2013 and 2022 in India.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Streetlights Slide -->
+            <div class="slide">
+              <div class="slide-content">
+                <div class="slide-image">
+                  <img src="https://static.toiimg.com/thumb/msid-66001633,imgsize-380498,width-400,resizemode-4/66001633.jpg" alt="Street lighting" />
+                </div>
+                <div class="slide-info">
+                  <h3>Street Lighting</h3>
+                  <div class="stats">
+                    <div class="stat-item">
+                      <span class="stat-number">40%</span>
+                      <span class="stat-label">Of roads lack proper lighting</span>
+                    </div>
+                    <div class="stat-item">
+                      <span class="stat-number">23%</span>
+                      <span class="stat-label">Reduction in crime with better lighting</span>
+                    </div>
+                  </div>
+                  <p class="fact">
+                    Proper street lighting can reduce nighttime accidents by up to 30% and improve overall safety in urban areas.
+                  </p>
+                </div>
+              </div>
+            </div>
+
+            <!-- Sanitation Slide -->
+            <div class="slide">
+              <div class="slide-content">
+                <div class="slide-image">
+                  <img src="https://www.thenewleam.com/wp-content/uploads/2019/05/water-crisis-1024x671.jpg" alt="Sanitation issues" />
+                </div>
+                <div class="slide-info">
+                  <h3>Clean Drinking Water</h3>
+                  <div class="stats">
+                    <div class="stat-item">
+                      <span class="stat-number">2.2B</span>
+                      <span class="stat-label">People lack safe drinking water</span>
+                    </div>
+                    <div class="stat-item">
+                      <span class="stat-number">4.2B</span>
+                      <span class="stat-label">People lack safely managed water</span>
+                    </div>
+                  </div>
+                  <p class="fact">
+                    Access to clean drinking water is a fundamental human right. Water scarcity affects 40% of the global population, with millions facing water-related health crises daily.
+                  </p>
+                </div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Slider Indicators -->
+        <div class="slider-indicators">
+          <span class="indicator active" onclick="currentSlide(1)"></span>
+          <span class="indicator" onclick="currentSlide(2)"></span>
+          <span class="indicator" onclick="currentSlide(3)"></span>
+        </div>
+      </div>
+    </section>
+
+    <!-- Our Agendas -->
+    <section class="more">
+      <h1>Our Agendas</h1>
+      <div class="agenda-row">
+        <div class="agenda-card">
+          <img src="undraw_os-upgrade_ztrf.svg" class="agenda-img" alt="Capture issues illustration" />
+          <h3>Spot an issue?<br>Capture it instantly.</h3>
+          <a href="home.html" class="btn">Learn more</a>
+        </div>
+
+        <div class="agenda-card">
+          <img src="undraw_progress-overview_wl8n.svg" class="agenda-img" alt="Track progress illustration" />
+          <h3>Track your reports in<br>real-time</h3>
+          <a href="home.html" class="btn">Learn more</a>
+        </div>
+
+        <div class="agenda-card">
+          <img src="undraw_delivery-location_um5t.svg" class="agenda-img" alt="Location tagging illustration" />
+          <h3>Explore civic issues <br>around you</h3>
+          <a href="home.html" class="btn">Learn more</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer>
+    <h2>->How it works?</h2>
+    <h2>->Know more about us?</h2>
+    <h2>->What are the departments involved?</h2>
+  </footer>
+
+  <script src="script.js"></script>
+
+</body>
+</html>
