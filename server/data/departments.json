@@ -1,0 +1,22 @@
+[
+  {
+    "id": "electrical",
+    "name": "Electrical Department"
+  },
+  {
+    "id": "sanitation",
+    "name": "Sanitation Department"
+  },
+  {
+    "id": "public-works",
+    "name": "Public Works Department"
+  },
+  {
+    "id": "water-supply",
+    "name": "Water Supply Department"
+  },
+  {
+    "id": "traffic",
+    "name": "Traffic Management"
+  }
+]

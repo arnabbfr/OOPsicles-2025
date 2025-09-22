@@ -16,20 +16,23 @@
         <!-- Statistics Dashboard -->
         <div class="stats-bar">
             <div class="stat-card">
-                <div class="stat-number total" id="totalIssues">12</div>
+                <div class="stat-number total" id="totalIssues">0</div>
                 <div class="stat-label">Total Issues</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number pending" id="pendingIssues">5</div>
+                <div class="stat-number pending" id="pendingIssues">0</div>
                 <div class="stat-label">Pending</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number in-progress" id="progressIssues">4</div>
+                <div class="stat-number in-progress" id="progressIssues">0</div>
                 <div class="stat-label">In Progress</div>
             </div>
             <div class="stat-card">
-                <div class="stat-number resolved" id="resolvedIssues">3</div>
+                <div class="stat-number resolved" id="resolvedIssues">0</div>
                 <div class="stat-label">Resolved</div>
+            </div>
+            <div class="stat-card">
+                <button class="btn btn-danger" onclick="clearResolved()">🗑️ Clear Resolved</button>
             </div>
         </div>
 
@@ -97,15 +100,7 @@
             <h2 class="section-title"> City Issues Overview</h2>
             
             <div class="map-container" id="mapContainer">
-                <div class="map-placeholder">
-                    <h3>Interactive Issues Map</h3>
-                    <p>Visualize all reported issues across the city</p>
-                    <div style="margin-top: 20px;">
-                        <div style="display: inline-block; width: 12px; height: 12px; background: #e74c3c; border-radius: 50%; margin: 5px;"></div>
-                        <div style="display: inline-block; width: 12px; height: 12px; background: #f2a516; border-radius: 50%; margin: 5px;"></div>
-                        <div style="display: inline-block; width: 12px; height: 12px; background: #27ae60; border-radius: 50%; margin: 5px;"></div>
-                    </div>
-                </div>
+                <div id="map" style="width: 100%; height: 100%;"></div>
             </div>
             <div class="legend">
                 <div class="legend-item">
@@ -135,167 +130,45 @@
     </div>
 
     <script>
-        // Sample data - in production this would come from a database
-        let issues = [
-            {
-                id: 'ISS-001',
-                type: 'road-repair',
-                title: 'Large Pothole on Main Street',
-                description: 'There is a large pothole on Main Street that is causing damage to vehicles and creating safety hazards for pedestrians.',
-                location: 'Main Street, Block A',
-                coordinates: { lat: 26.7271, lng: 94.2032 },
-                status: 'pending',
-                priority: 'high',
-                reportedBy: 'John Doe',
-                reportedAt: '2025-09-14 10:30 AM',
-                assignedTo: null,
-                assignedAt: null,
-                department: null,
-                media: ['pothole1.jpg', 'pothole2.jpg'],
-                voiceNote: 'voice_note_001.mp3',
-                updates: []
-            },
-            {
-                id: 'ISS-002',
-                type: 'streetlight',
-                title: 'Broken Streetlight Near Park',
-                description: 'The streetlight near the central park is not working, making the area unsafe during nighttime.',
-                location: 'Park Avenue, Block B',
-                coordinates: { lat: 26.7281, lng: 94.2042 },
-                status: 'in-progress',
-                priority: 'medium',
-                reportedBy: 'Jane Smith',
-                reportedAt: '2025-09-13 08:15 PM',
-                assignedTo: 'Electrical Department',
-                assignedAt: '2025-09-14 09:00 AM',
-                department: 'electrical',
-                media: ['streetlight1.jpg'],
-                voiceNote: null,
-                updates: [
-                    { date: '2025-09-14 09:30 AM', note: 'Technician dispatched to inspect the issue', by: 'Electrical Dept' }
-                ]
-            },
-            {
-                id: 'ISS-003',
-                type: 'water-supply',
-                title: 'Water Leak on Residential Street',
-                description: 'Major water leak causing flooding on residential street. Urgent attention required.',
-                location: 'Residential Colony, Block C',
-                coordinates: { lat: 26.7291, lng: 94.2052 },
-                status: 'resolved',
-                priority: 'high',
-                reportedBy: 'Community Representative',
-                reportedAt: '2025-09-12 06:45 AM',
-                assignedTo: 'Water Supply Department',
-                assignedAt: '2025-09-12 08:00 AM',
-                department: 'water-supply',
-                media: ['water_leak1.jpg'],
-                voiceNote: null,
-                updates: [
-                    { date: '2025-09-12 10:00 AM', note: 'Emergency crew dispatched', by: 'Water Dept' },
-                    { date: '2025-09-12 02:30 PM', note: 'Leak repaired and water supply restored', by: 'Water Dept' }
-                ]
-            },
-            {
-                id: 'ISS-004',
-                type: 'garbage',
-                title: 'Overflowing Garbage Bins',
-                description: 'Multiple garbage bins are overflowing in the market area, creating sanitation issues.',
-                location: 'Central Market, Block D',
-                coordinates: { lat: 26.7301, lng: 94.2062 },
-                status: 'pending',
-                priority: 'medium',
-                reportedBy: 'Market Vendor',
-                reportedAt: '2025-09-15 07:20 AM',
-                assignedTo: null,
-                assignedAt: null,
-                department: null,
-                media: ['garbage1.jpg', 'garbage2.jpg'],
-                voiceNote: null,
-                updates: []
-            },
-            {
-                id: 'ISS-005',
-                type: 'drainage',
-                title: 'Blocked Storm Drain',
-                description: 'Storm drain is completely blocked, causing waterlogging during rain.',
-                location: 'Industrial Area, Block E',
-                coordinates: { lat: 26.7311, lng: 94.2072 },
-                status: 'in-progress',
-                priority: 'high',
-                reportedBy: 'Factory Manager',
-                reportedAt: '2025-09-13 11:15 AM',
-                assignedTo: 'Public Works Department',
-                assignedAt: '2025-09-13 02:00 PM',
-                department: 'public-works',
-                media: ['drainage1.jpg'],
-                voiceNote: 'drainage_voice.mp3',
-                updates: [
-                    { date: '2025-09-14 08:00 AM', note: 'Cleaning equipment deployed to site', by: 'Public Works' }
-                ]
-            }
-        ];
+        const API_BASE = location.origin.replace(/\/$/, '') + '/api';
 
-        let departments = [
-            {
-                id: 'electrical',
-                name: 'Electrical Department',
-                head: 'Eng. Rajesh Kumar',
-                contact: '+91-9876543210',
-                activeIssues: 2,
-                totalResolved: 45,
-                specialization: ['Street Lights', 'Power Lines', 'Electrical Infrastructure']
-            },
-            {
-                id: 'sanitation',
-                name: 'Sanitation Department',
-                head: 'Mr. Priya Sharma',
-                contact: '+91-9876543211',
-                activeIssues: 1,
-                totalResolved: 78,
-                specialization: ['Garbage Collection', 'Waste Management', 'Cleanliness']
-            },
-            {
-                id: 'public-works',
-                name: 'Public Works Department',
-                head: 'Eng. Amit Singh',
-                contact: '+91-9876543212',
-                activeIssues: 3,
-                totalResolved: 92,
-                specialization: ['Road Repair', 'Infrastructure', 'Construction']
-            },
-            {
-                id: 'water-supply',
-                name: 'Water Supply Department',
-                head: 'Mr. Kavita Devi',
-                contact: '+91-9876543213',
-                activeIssues: 1,
-                totalResolved: 56,
-                specialization: ['Water Distribution', 'Pipe Maintenance', 'Quality Control']
-            },
-            {
-                id: 'traffic',
-                name: 'Traffic Management',
-                head: 'Inspector Ram Prasad',
-                contact: '+91-9876543214',
-                activeIssues: 0,
-                totalResolved: 34,
-                specialization: ['Traffic Signals', 'Road Signs', 'Traffic Flow']
-            }
-        ];
+        // Data stores
+        let issues = [];
+        let departments = [];
 
         // Initialize the application
-        document.addEventListener('DOMContentLoaded', function() {
+        document.addEventListener('DOMContentLoaded', async function() {
+            await loadData();
             renderIssues();
             renderDepartments();
             updateStats();
+            if (window.google && window.google.maps) {
+                initializeMap();
+            }
+            document.addEventListener('keydown', (e) => {
+                if (e.key === 'Escape') closeModal();
+            });
         });
+
+        async function loadData() {
+            try {
+                const [issuesRes, deptsRes] = await Promise.all([
+                    fetch(`${API_BASE}/issues`),
+                    fetch(`${API_BASE}/departments`)
+                ]);
+                issues = await issuesRes.json();
+                departments = await deptsRes.json();
+            } catch (e) {
+                issues = issues || [];
+                departments = departments || [];
+            }
+        }
 
         function renderIssues(filteredIssues = issues) {
             const issuesContainer = document.getElementById('issuesList');
             issuesContainer.innerHTML = '';
 
-            if (filteredIssues.length === 0) {
+            if (!filteredIssues || filteredIssues.length === 0) {
                 issuesContainer.innerHTML = '<p style="text-align: center; color: #666; padding: 40px;">No issues found matching the current filters.</p>';
                 return;
             }
@@ -305,13 +178,12 @@
                 issuesContainer.appendChild(issueCard);
             });
         }
-
+        
         function createIssueCard(issue) {
             const card = document.createElement('div');
             card.className = `issue-card priority-${issue.priority}`;
-            
             const statusClass = `status-${issue.status}`;
-            const typeDisplay = issue.type.replace('-', ' ').toUpperCase();
+            const typeDisplay = (issue.type || '').replace('-', ' ').toUpperCase();
             
             card.innerHTML = `
                 <div class="issue-header">
@@ -324,21 +196,21 @@
                 
                 <div class="issue-details">
                     <div class="issue-description">
-                        <strong>${issue.title}</strong><br>
-                        ${issue.description}
+                        <strong>${issue.title || ''}</strong><br>
+                        ${issue.description || ''}
                     </div>
                     
                     <div class="issue-meta">
-                        <span>📍 ${issue.location}</span>
-                        <span>⏰ ${issue.reportedAt}</span>
-                        <span>👤 ${issue.reportedBy}</span>
-                        <span>🚨 Priority: ${issue.priority.toUpperCase()}</span>
+                        <span>📍 ${issue.location || ''}</span>
+                        <span>⏰ ${issue.reportedAt || ''}</span>
+                        <span>👤 ${issue.reportedBy || ''}</span>
+                        <span>🚨 Priority: ${(issue.priority || '').toUpperCase()}</span>
                     </div>
                     
                     ${issue.assignedTo ? `
                         <div class="issue-meta">
                             <span>🏢 Assigned to: ${issue.assignedTo}</span>
-                            <span>📅 ${issue.assignedAt}</span>
+                            <span>📅 ${issue.assignedAt || ''}</span>
                         </div>
                     ` : ''}
                 </div>
@@ -385,7 +257,7 @@
                     <div class="form-group">
                         <label>Priority:</label>
                         <select id="priority-${issue.id}">
-                            <option value="low">Low</option>
+                            <option value="low" ${issue.priority === 'low' ? 'selected' : ''}>Low</option>
                             <option value="medium" ${issue.priority === 'medium' ? 'selected' : ''}>Medium</option>
                             <option value="high" ${issue.priority === 'high' ? 'selected' : ''}>High</option>
                         </select>
@@ -398,6 +270,268 @@
                     <button class="btn btn-danger" onclick="cancelAssignment('${issue.id}')">Cancel</button>
                 </div>
             `;
-            
             return card;
         }
+
+        function renderDepartments() {
+            const container = document.getElementById('departmentsList');
+            if (!container) return;
+            container.innerHTML = '';
+            const deptIdToIssues = issues.reduce((acc, iss) => {
+                if (iss.department) {
+                    acc[iss.department] = acc[iss.department] || [];
+                    acc[iss.department].push(iss);
+                }
+                return acc;
+            }, {});
+            departments.forEach(dept => {
+                const assigned = deptIdToIssues[dept.id] || [];
+                const div = document.createElement('div');
+                div.className = 'department-card';
+                div.innerHTML = `
+                    <div class="department-header">
+                        <strong>${dept.name}</strong>
+                        <span>${assigned.length} assigned</span>
+                    </div>
+                    <div class="department-body">
+                        <div>Contact: ${dept.contact || ''}</div>
+                        <div style="margin-top:8px">
+                            ${assigned.length ? assigned.map(i => `<div style="display:flex;justify-content:space-between;align-items:center;margin:4px 0;padding:6px 8px;border:1px solid #eee;border-radius:6px">
+                                <span>${i.id} • ${(i.title || i.type || '').toString().slice(0,40)}</span>
+                                ${i.status !== 'resolved' ? `<button class="btn btn-success" onclick="updateStatus('${i.id}','resolved')">Resolve</button>` : '<span style="color:#27ae60;font-weight:600">Resolved</span>'}
+                            </div>`).join('') : '<em>No assignments</em>'}
+                        </div>
+                    </div>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        function updateStats() {
+            const total = issues.length;
+            const pending = issues.filter(i => i.status === 'pending').length;
+            const inProgress = issues.filter(i => i.status === 'in-progress').length;
+            const resolved = issues.filter(i => i.status === 'resolved').length;
+            const setText = (id, val) => { const el = document.getElementById(id); if (el) el.textContent = val; };
+            setText('totalIssues', total);
+            setText('pendingIssues', pending);
+            setText('progressIssues', inProgress);
+            setText('resolvedIssues', resolved);
+        }
+
+        function findIssueById(issueId) { return issues.find(i => i.id === issueId); }
+
+        function viewIssueDetails(issueId) {
+            const issue = findIssueById(issueId);
+            if (!issue) return;
+            const modal = document.getElementById('issueModal');
+            const content = document.getElementById('modalContent');
+            if (!modal || !content) return;
+            const mediaHtml = (issue.media && issue.media.length)
+                ? `<div style="margin-top:10px; display:flex; gap:8px; flex-wrap:wrap;">${issue.media.map(u => `<a href="${u}" target="_blank"><img src="${u}" alt="evidence" style="width:90px;height:70px;object-fit:cover;border-radius:6px;border:1px solid #eee"/></a>`).join('')}</div>`
+                : '<em>No media</em>';
+            content.innerHTML = `
+                <h3>${issue.title || ''} (${issue.id})</h3>
+                <p>${issue.description || ''}</p>
+                <p><strong>Location:</strong> ${issue.location || ''}</p>
+                <p><strong>Status:</strong> ${issue.status}</p>
+                <p><strong>Priority:</strong> ${issue.priority}</p>
+                <div><strong>Evidence:</strong> ${mediaHtml}</div>
+                <div style="margin-top:10px">${(issue.updates || []).map(u => `<div>• ${u.date}: ${u.note}</div>`).join('') || '<em>No updates</em>'}</div>
+            `;
+            modal.style.display = 'block';
+        }
+
+        function closeModal() { const m = document.getElementById('issueModal'); if (m) m.style.display = 'none'; }
+
+        function assignIssue(issueId) { const f = document.getElementById(`assignForm-${issueId}`); if (f) f.style.display = 'block'; }
+        function cancelAssignment(issueId) { const f = document.getElementById(`assignForm-${issueId}`); if (f) f.style.display = 'none'; }
+
+        async function confirmAssignment(issueId) {
+            const issue = findIssueById(issueId);
+            if (!issue) return;
+            const deptSelect = document.getElementById(`dept-${issueId}`);
+            const prioritySelect = document.getElementById(`priority-${issueId}`);
+            const instructionsInput = document.getElementById(`instructions-${issueId}`);
+            if (!deptSelect || !prioritySelect) return;
+            const dept = departments.find(d => d.id === deptSelect.value);
+            try {
+                const res = await fetch(`${API_BASE}/issues/${issueId}/assign`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({
+                        department: dept ? dept.id : null,
+                        assignedTo: dept ? dept.name : null,
+                        priority: prioritySelect.value,
+                        instructions: instructionsInput && instructionsInput.value ? instructionsInput.value.trim() : ''
+                    })
+                });
+                if (!res.ok) throw new Error('Failed to assign');
+                const updated = await res.json();
+                const idx = issues.findIndex(i => i.id === updated.id);
+                if (idx >= 0) issues[idx] = updated; else issues.push(updated);
+                cancelAssignment(issueId);
+                renderIssues(filterIssuesReturnCurrent());
+                updateStats();
+                if (mapInstance) renderMapMarkers(filterIssuesReturnCurrent());
+            } catch (e) {
+                alert('Assignment failed.');
+            }
+        }
+
+        async function updateStatus(issueId, newStatus) {
+            try {
+                const res = await fetch(`${API_BASE}/issues/${issueId}/status`, {
+                    method: 'PATCH',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify({ status: newStatus })
+                });
+                if (!res.ok) throw new Error('Failed');
+                const updated = await res.json();
+                const idx = issues.findIndex(i => i.id === updated.id);
+                if (idx >= 0) issues[idx] = updated; else issues.push(updated);
+                renderIssues(filterIssuesReturnCurrent());
+                updateStats();
+                renderDepartments();
+                if (mapInstance) renderMapMarkers(filterIssuesReturnCurrent());
+            } catch (e) {
+                alert('Status update failed.');
+            }
+        }
+
+        async function clearResolved() {
+            if (!confirm('Archive and remove all resolved issues?')) return;
+            try {
+                const res = await fetch(`${API_BASE}/issues/clear-resolved`, { method: 'POST', headers: { 'Content-Type': 'application/json' }, body: JSON.stringify({}) });
+                if (!res.ok) throw new Error('Failed to clear');
+                await loadData();
+                renderIssues(filterIssuesReturnCurrent());
+                updateStats();
+                renderDepartments();
+                if (mapInstance) renderMapMarkers(filterIssuesReturnCurrent());
+            } catch (e) {
+                alert('Failed to clear resolved issues.');
+            }
+        }
+
+        function addUpdate(issueId) {
+            const note = prompt('Enter update note');
+            if (!note || !note.trim()) return;
+            const issue = findIssueById(issueId);
+            if (!issue) return;
+            issue.updates = issue.updates || [];
+            issue.updates.push({ date: new Date().toLocaleString(), note: note.trim(), by: 'Operator' });
+            renderIssues(filterIssuesReturnCurrent());
+        }
+
+        function changePriority(issueId) {
+            const issue = findIssueById(issueId);
+            if (!issue) return;
+            const next = { low: 'medium', medium: 'high', high: 'low' };
+            issue.priority = next[issue.priority] || 'medium';
+            renderIssues(filterIssuesReturnCurrent());
+        }
+
+        function filterIssuesReturnCurrent() {
+            const status = document.getElementById('statusFilter').value;
+            const type = document.getElementById('typeFilter').value;
+            const priority = document.getElementById('priorityFilter').value;
+            const search = document.getElementById('searchFilter').value.trim().toLowerCase();
+            return issues.filter(issue => {
+                const matchesStatus = status === 'all' || issue.status === status;
+                const matchesType = type === 'all' || issue.type === type;
+                const matchesPriority = priority === 'all' || issue.priority === priority;
+                const matchesSearch = !search ||
+                    (issue.title || '').toLowerCase().includes(search) ||
+                    (issue.description || '').toLowerCase().includes(search) ||
+                    (issue.location || '').toLowerCase().includes(search) ||
+                    (issue.id || '').toLowerCase().includes(search);
+                return matchesStatus && matchesType && matchesPriority && matchesSearch;
+            });
+        }
+
+        function filterIssues() {
+            const filtered = filterIssuesReturnCurrent();
+            renderIssues(filtered);
+            if (mapInstance) renderMapMarkers(filtered);
+        }
+
+        // -------------------- MAP INTEGRATION --------------------
+        let mapInstance = null;
+        let mapMarkers = [];
+
+        function initializeMap() {
+            const mapElement = document.getElementById('map');
+            if (!mapElement) return;
+            const defaultCenter = { lat: 26.7282, lng: 94.2042 };
+            mapInstance = new google.maps.Map(mapElement, {
+                center: defaultCenter,
+                zoom: 14,
+                mapTypeControl: false,
+                streetViewControl: false,
+                fullscreenControl: true
+            });
+            renderMapMarkers();
+        }
+
+        function getStatusColor(status) {
+            switch (status) {
+                case 'pending': return '#e74c3c';
+                case 'in-progress': return '#f2a516';
+                case 'resolved': return '#27ae60';
+                default: return '#3498db';
+            }
+        }
+
+        function createSvgPin(color) {
+            return {
+                path: 'M12 2C7.582 2 4 5.582 4 10c0 5.25 8 12 8 12s8-6.75 8-12c0-4.418-3.582-8-8-8zm0 10.5A2.5 2.5 0 1 1 12 7.5a2.5 2.5 0 0 1 0 5z',
+                fillColor: color,
+                fillOpacity: 1,
+                strokeColor: '#ffffff',
+                strokeWeight: 2,
+                scale: 1.2,
+                anchor: new google.maps.Point(12, 22)
+            };
+        }
+
+        function clearMapMarkers() { mapMarkers.forEach(m => m.setMap(null)); mapMarkers = []; }
+
+        function renderMapMarkers(filteredIssues = null) {
+            if (!mapInstance) return;
+            const data = filteredIssues || issues;
+            clearMapMarkers();
+            const infoWindow = new google.maps.InfoWindow();
+            data.forEach(item => {
+                if (!item.coordinates) return;
+                const position = { lat: item.coordinates.lat, lng: item.coordinates.lng };
+                const marker = new google.maps.Marker({
+                    position,
+                    map: mapInstance,
+                    icon: createSvgPin(getStatusColor(item.status)),
+                    title: `${item.id} - ${item.title}`
+                });
+                marker.addListener('click', () => {
+                    const content = `
+                        <div style="max-width:260px">
+                            <div style="font-weight:600;margin-bottom:4px">${item.title || ''}</div>
+                            <div style="font-size:12px;color:#555;margin-bottom:6px">${item.location || ''}</div>
+                            <div style="font-size:12px;margin-bottom:6px">Status: <span style="font-weight:600;text-transform:capitalize">${(item.status || '').replace('-', ' ')}</span></div>
+                            <button onclick="viewIssueDetails('${item.id}')" style="padding:6px 10px;border:none;background:#2c3e50;color:#fff;border-radius:4px;cursor:pointer">View Details</button>
+                        </div>`;
+                    infoWindow.setContent(content);
+                    infoWindow.open({ map: mapInstance, anchor: marker });
+                });
+                mapMarkers.push(marker);
+            });
+            if (mapMarkers.length) {
+                const bounds = new google.maps.LatLngBounds();
+                mapMarkers.forEach(m => bounds.extend(m.getPosition()));
+                mapInstance.fitBounds(bounds);
+            }
+        }
+    </script>
+    <!-- Load Google Maps JS API (replace YOUR_API_KEY with a valid key) -->
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCic2nOSqta56xC_M4nIYodcjSDgAAT4JY&callback=initializeMap"></script>
+</body>
+</html>

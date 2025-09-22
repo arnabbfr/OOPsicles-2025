@@ -547,15 +547,7 @@
                 <h2 class="section-title">🗺️ City Issues Map</h2>
                 
                 <div class="map-container" id="mapContainer">
-                    <div class="map-placeholder">
-                        <h3>Interactive Map</h3>
-                        <p>View reported issues across the city</p>
-                        <div style="margin-top: 20px;">
-                            <div style="display: inline-block; width: 10px; height: 10px; background: #e74c3c; border-radius: 50%; margin: 5px;"></div>
-                            <div style="display: inline-block; width: 10px; height: 10px; background: #f2a516; border-radius: 50%; margin: 5px;"></div>
-                            <div style="display: inline-block; width: 10px; height: 10px; background: #27ae60; border-radius: 50%; margin: 5px;"></div>
-                        </div>
-                    </div>
+                    <div id="map" style="height: 100%; width: 100%;"></div>
                 </div>
 
                 <div class="legend">
@@ -575,7 +567,6 @@
 
                 <div class="issues-list" id="issuesList">
                     <h3>Recent Issues:</h3>
-                    <!-- Sample issues will be populated here -->
                 </div>
             </div>
         </div>
@@ -590,10 +581,20 @@
         let uploadedFiles = [];
         let reportedIssues = [];
 
+        // Google Maps globals
+        let map;
+        let mainMarker;
+        let geocoder;
+        let mapClickListener = null;
+        let mapMarkers = [];
+
+        // For production, replace with your server's public IP/domain
+        const API_BASE = 'http://192.168.1.100:3000/api'; // Replace 192.168.1.100 with YOUR actual IP
+
         // Initialize the app
         document.addEventListener('DOMContentLoaded', function() {
-            initializeMap();
-            loadSampleIssues();
+            // Map initializes via Google callback initMap
+            fetchAndRenderIssues();
             setupEventListeners();
         });
 
@@ -654,11 +655,11 @@
         }
 
         // File upload functionality
-        function handleFileUpload(event) {
+        async function handleFileUpload(event) {
             const files = Array.from(event.target.files);
             const uploadedFilesContainer = document.getElementById('uploadedFiles');
 
-            files.forEach(file => {
+            for (const file of files) {
                 if (!uploadedFiles.find(f => f.name === file.name)) {
                     uploadedFiles.push(file);
                     
@@ -670,7 +671,26 @@
                     `;
                     uploadedFilesContainer.appendChild(fileTag);
                 }
+            }
+
+            // Upload files to the backend
+            const formData = new FormData();
+            uploadedFiles.forEach(file => {
+                formData.append('files', file);
             });
+
+            try {
+                const res = await fetch(`${API_BASE}/upload`, {
+                    method: 'POST',
+                    body: formData
+                });
+                if (!res.ok) throw new Error('Failed to upload files');
+                const uploadedUrls = await res.json();
+                uploadedFiles = uploadedFiles.map(f => ({ ...f, url: uploadedUrls[f.name] }));
+                alert('Files uploaded successfully!');
+            } catch (e) {
+                alert('There was an error uploading files. Please try again.');
+            }
         }
 
         function removeFile(fileName) {
@@ -683,84 +703,149 @@
         // Location functionality
         function useCurrentLocation() {
             if (navigator.geolocation) {
+                // Request high accuracy location
+                const options = {
+                    enableHighAccuracy: true,
+                    timeout: 10000,
+                    maximumAge: 0
+                };
+                
                 navigator.geolocation.getCurrentPosition(
                     position => {
+                        const accuracy = position.coords.accuracy;
                         currentLocation = {
                             lat: position.coords.latitude,
                             lng: position.coords.longitude
                         };
+                        
+                        // Show accuracy information
+                        let accuracyText = '';
+                        if (accuracy <= 10) {
+                            accuracyText = ' (Very accurate)';
+                        } else if (accuracy <= 50) {
+                            accuracyText = ' (Accurate)';
+                        } else if (accuracy <= 100) {
+                            accuracyText = ' (Moderately accurate)';
+                        } else {
+                            accuracyText = ' (Low accuracy - consider manual selection)';
+                        }
+                        
                         document.getElementById('locationDisplay').textContent = 
-                            `Current location: ${currentLocation.lat.toFixed(4)}, ${currentLocation.lng.toFixed(4)}`;
+                            `Current location: ${currentLocation.lat.toFixed(6)}, ${currentLocation.lng.toFixed(6)}${accuracyText}`;
+                        setMapLocation(currentLocation);
+                        
+                        // If accuracy is poor, suggest manual selection
+                        if (accuracy > 100) {
+                            setTimeout(() => {
+                                if (confirm('Location accuracy is low. Would you like to manually select your location on the map instead?')) {
+                                    pointOnMap();
+                                }
+                            }, 1000);
+                        }
                     },
                     error => {
-                        alert('Unable to get location. Please check permissions or enter manually.');
-                    }
+                        let errorMessage = 'Unable to get location. ';
+                        switch(error.code) {
+                            case error.PERMISSION_DENIED:
+                                errorMessage += 'Please allow location access in your browser settings.';
+                                break;
+                            case error.POSITION_UNAVAILABLE:
+                                errorMessage += 'Location information is unavailable.';
+                                break;
+                            case error.TIMEOUT:
+                                errorMessage += 'Location request timed out.';
+                                break;
+                            default:
+                                errorMessage += 'An unknown error occurred.';
+                                break;
+                        }
+                        alert(errorMessage + ' You can still enter your address manually or select on the map.');
+                    },
+                    options
                 );
             } else {
-                alert('Geolocation not supported by this browser.');
+                alert('Geolocation not supported by this browser. Please enter your address manually or select on the map.');
             }
         }
 
         function pointOnMap() {
-            alert('Map selection feature would integrate with a mapping service like Google Maps or OpenStreetMap.');
-            // This would typically open an interactive map modal
+            if (!map) {
+                alert('Map is not ready yet.');
+                return;
+            }
+            if (mapClickListener) {
+                google.maps.event.removeListener(mapClickListener);
+                mapClickListener = null;
+                alert('Map selection cancelled.');
+                return;
+            }
+            alert('Click on the map to set your exact location. Click the button again to cancel.');
+            mapClickListener = map.addListener('click', (e) => {
+                const coords = { lat: e.latLng.lat(), lng: e.latLng.lng() };
+                currentLocation = coords;
+                setMapLocation(coords);
+                document.getElementById('locationDisplay').textContent = `Selected: ${coords.lat.toFixed(6)}, ${coords.lng.toFixed(6)} (Manual selection)`;
+                if (mapClickListener) {
+                    google.maps.event.removeListener(mapClickListener);
+                    mapClickListener = null;
+                }
+            });
         }
 
         // Form submission
-        function handleFormSubmit(event) {
+        async function handleFormSubmit(event) {
             event.preventDefault();
-            
-            const formData = new FormData();
-            formData.append('issueType', document.getElementById('issueType').value);
-            formData.append('description', document.getElementById('description').value);
-            formData.append('manualAddress', document.getElementById('manualAddress').value);
-            
-            if (currentLocation) {
-                formData.append('location', JSON.stringify(currentLocation));
+            const type = document.getElementById('issueType').value;
+            const description = document.getElementById('description').value;
+            const manualAddress = document.getElementById('manualAddress').value;
+
+            // Upload selected files first
+            let mediaUrls = [];
+            if (uploadedFiles.length) {
+                const form = new FormData();
+                uploadedFiles.forEach(f => form.append('files', f));
+                try {
+                    const upRes = await fetch(`${API_BASE}/upload`, { method: 'POST', body: form });
+                    if (!upRes.ok) throw new Error('upload failed');
+                    const upJson = await upRes.json();
+                    mediaUrls = (upJson.files || []).map(f => f.url);
+                } catch (e) {
+                    alert('Some files failed to upload. Proceeding without them.');
+                }
             }
 
-            uploadedFiles.forEach((file, index) => {
-                formData.append(`file_${index}`, file);
-            });
-
-            // Generate unique ID
-            const issueId = 'ISS-' + String(Date.now()).slice(-6);
-
-            // Create new issue object
-            const newIssue = {
-                id: issueId,
-                type: document.getElementById('issueType').value,
-                title: generateIssueTitle(document.getElementById('issueType').value),
-                description: document.getElementById('description').value,
-                location: document.getElementById('manualAddress').value || 'Location provided via GPS',
+            const newIssuePayload = {
+                type,
+                title: generateIssueTitle(type),
+                description,
+                manualAddress,
                 coordinates: currentLocation,
-                status: 'pending',
-                priority: 'medium', // Default priority
-                reportedBy: 'Citizen User', // Would come from user login in real app
-                reportedAt: new Date().toLocaleString(),
-                assignedTo: null,
-                assignedAt: null,
-                department: null,
-                media: uploadedFiles.map(f => f.name),
-                voiceNote: document.getElementById('audioPlayback').src ? 'voice_note.mp3' : null,
-                updates: []
+                priority: 'medium',
+                reportedBy: 'Citizen User',
+                media: mediaUrls,
+                voiceNote: document.getElementById('audioPlayback').src ? 'voice_note.mp3' : null
             };
 
-            // Save to localStorage for authority portal to access
-            saveIssueToStorage(newIssue);
-
-            reportedIssues.push(newIssue);
-            addIssueToList(newIssue);
-            
-            // Reset form
-            document.getElementById('issueForm').reset();
-            document.getElementById('uploadedFiles').innerHTML = '';
-            document.getElementById('locationDisplay').textContent = '';
-            document.getElementById('voiceNoteDisplay').style.display = 'none';
-            uploadedFiles = [];
-            currentLocation = null;
-
-            alert('Issue reported successfully! Authorities have been notified and you can track its progress on the map.');
+            try {
+                const res = await fetch(`${API_BASE}/issues`, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(newIssuePayload)
+                });
+                if (!res.ok) throw new Error('Failed to submit issue');
+                const saved = await res.json();
+                await fetchAndRenderIssues();
+                // Reset form
+                document.getElementById('issueForm').reset();
+                document.getElementById('uploadedFiles').innerHTML = '';
+                document.getElementById('locationDisplay').textContent = '';
+                document.getElementById('voiceNoteDisplay').style.display = 'none';
+                uploadedFiles = [];
+                currentLocation = null;
+                alert('Issue reported successfully!');
+            } catch (e) {
+                alert('There was an error submitting your issue. Please try again.');
+            }
         }
 
         function generateIssueTitle(issueType) {
@@ -778,79 +863,135 @@
             return titles[issueType] || 'Civic Issue';
         }
 
-        function saveIssueToStorage(newIssue) {
-            // Get existing issues from localStorage
-            let existingIssues = [];
-            const stored = localStorage.getItem('civicIssues');
-            if (stored) {
-                existingIssues = JSON.parse(stored);
+        // Google Maps integration
+        function initMap() {
+            const initialCenter = { lat: 20.5937, lng: 78.9629 }; // Default: India centroid
+            map = new google.maps.Map(document.getElementById('map'), {
+                center: initialCenter,
+                zoom: 5,
+                disableDefaultUI: false,
+                mapTypeControl: false,
+                streetViewControl: false
+            });
+            geocoder = new google.maps.Geocoder();
+            mainMarker = new google.maps.Marker({ 
+                map,
+                title: 'Your selected location',
+                animation: google.maps.Animation.DROP
+            });
+        }
+
+        function setMapLocation(coords) {
+            if (!map) return;
+            map.setCenter(coords);
+            map.setZoom(18); // Increased zoom for better precision
+            mainMarker.setPosition(coords);
+            mainMarker.setAnimation(google.maps.Animation.BOUNCE);
+            // Stop animation after 2 seconds
+            setTimeout(() => {
+                mainMarker.setAnimation(null);
+            }, 2000);
+        }
+
+        function getStatusColor(status) {
+            switch (status) {
+                case 'pending': return '#e74c3c';
+                case 'in-progress': return '#f2a516';
+                case 'resolved': return '#27ae60';
+                default: return '#3498db';
             }
-            
-            // Add new issue
-            existingIssues.push(newIssue);
-            
-            // Save back to localStorage
-            localStorage.setItem('civicIssues', JSON.stringify(existingIssues));
         }
 
-        // Initialize sample issues and map
-        function initializeMap() {
-            // This would integrate with a real mapping service
-            console.log('Map initialized');
+        function createSvgPin(color) {
+            return {
+                path: 'M12 2C7.582 2 4 5.582 4 10c0 5.25 8 12 8 12s8-6.75 8-12c0-4.418-3.582-8-8-8zm0 10.5A2.5 2.5 0 1 1 12 7.5a2.5 2.5 0 0 1 0 5z',
+                fillColor: color,
+                fillOpacity: 1,
+                strokeColor: '#ffffff',
+                strokeWeight: 2,
+                scale: 1.2,
+                anchor: new google.maps.Point(12, 22)
+            };
         }
 
-        function loadSampleIssues() {
-            const sampleIssues = [
-                {
-                    id: 1,
-                    type: 'road-repair',
-                    description: 'Large pothole on Main Street',
-                    address: 'Main Street, Block A',
-                    status: 'pending',
-                    timestamp: '2025-09-14 10:30 AM'
-                },
-                {
-                    id: 2,
-                    type: 'streetlight',
-                    description: 'Broken streetlight near park',
-                    address: 'Park Avenue, Block B',
-                    status: 'in-progress',
-                    timestamp: '2025-09-13 08:15 PM'
-                },
-                {
-                    id: 3,
-                    type: 'garbage',
-                    description: 'Overflowing garbage bin',
-                    address: 'Market Road, Block C',
-                    status: 'resolved',
-                    timestamp: '2025-09-12 02:45 PM'
-                }
-            ];
+        function clearMapMarkers() {
+            mapMarkers.forEach(m => m.setMap(null));
+            mapMarkers = [];
+        }
 
-            sampleIssues.forEach(issue => addIssueToList(issue));
-            reportedIssues = [...sampleIssues];
+        function renderMapMarkers(data) {
+            if (!map) return;
+            clearMapMarkers();
+            if (!Array.isArray(data) || !data.length) return;
+            const infoWindow = new google.maps.InfoWindow();
+            data.forEach(item => {
+                if (!item.coordinates) return;
+                const pos = { lat: item.coordinates.lat, lng: item.coordinates.lng };
+                const marker = new google.maps.Marker({
+                    position: pos,
+                    map,
+                    icon: createSvgPin(getStatusColor(item.status)),
+                    title: `${item.id || ''} - ${item.title || ''}`
+                });
+                marker.addListener('click', () => {
+                    const content = `
+                        <div style="max-width:240px">
+                            <div style="font-weight:600;margin-bottom:4px">${item.title || ''}</div>
+                            <div style="font-size:12px;color:#555;margin-bottom:6px">${item.location || ''}</div>
+                            <div style="font-size:12px">Status: <span style="font-weight:600;text-transform:capitalize">${(item.status||'').replace('-', ' ')}</span></div>
+                        </div>`;
+                    infoWindow.setContent(content);
+                    infoWindow.open({ map, anchor: marker });
+                });
+                mapMarkers.push(marker);
+            });
+            if (mapMarkers.length) {
+                const bounds = new google.maps.LatLngBounds();
+                mapMarkers.forEach(m => bounds.extend(m.getPosition()));
+                map.fitBounds(bounds);
+            }
+        }
+
+        async function fetchAndRenderIssues() {
+            try {
+                const res = await fetch(`${API_BASE}/issues`);
+                reportedIssues = await res.json();
+                const list = document.getElementById('issuesList');
+                list.innerHTML = '<h3>Recent Issues:</h3>';
+                reportedIssues.slice().reverse().forEach(addIssueToList);
+                renderMapMarkers(reportedIssues);
+            } catch (e) {
+                // fallback: leave empty
+            }
+        }
+
+        function prependIssueToList(issue) {
+            const issuesList = document.getElementById('issuesList');
+            const item = createIssueItem(issue);
+            issuesList.insertBefore(item, issuesList.children[1] || null);
         }
 
         function addIssueToList(issue) {
             const issuesList = document.getElementById('issuesList');
-            const issueItem = document.createElement('div');
-            issueItem.className = `issue-item ${issue.status}`;
-            
-            const statusText = {
-                'pending': 'Pending',
-                'in-progress': 'In Progress',
-                'resolved': 'Resolved'
-            };
-
-            issueItem.innerHTML = `
-                <div>${issue.type.replace('-', ' ').toUpperCase()}</div>
-                <div>${issue.description}</div>
-                <div>📍 ${issue.address} | ⏰ ${issue.timestamp}</div>
-                <div>Status: ${statusText[issue.status]}</div>
-            `;
-
+            const issueItem = createIssueItem(issue);
             issuesList.appendChild(issueItem);
         }
+
+        function createIssueItem(issue) {
+            const issueItem = document.createElement('div');
+            issueItem.className = `issue-item ${issue.status}`;
+            const statusText = { 'pending': 'Pending', 'in-progress': 'In Progress', 'resolved': 'Resolved' };
+            const address = issue.location || issue.address || 'Location not specified';
+            const timestamp = issue.reportedAt || issue.timestamp || '';
+            issueItem.innerHTML = `
+                <div>${(issue.type || '').replace('-', ' ').toUpperCase()}</div>
+                <div>${issue.description || ''}</div>
+                <div>📍 ${address} ${timestamp ? '| ⏰ ' + timestamp : ''}</div>
+                <div>Status: ${statusText[issue.status] || issue.status}</div>
+            `;
+            return issueItem;
+        }
     </script>
+    <script async defer src="https://maps.googleapis.com/maps/api/js?key=AIzaSyCic2nOSqta56xC_M4nIYodcjSDgAAT4JY&callback=initMap"></script>
 </body>
 </html>

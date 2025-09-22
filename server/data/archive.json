@@ -1,0 +1,88 @@
+[
+  {
+    "id": "ISS-DZO8BH",
+    "type": "water-supply",
+    "title": "Water Supply Problem",
+    "description": "No water supply ",
+    "location": "",
+    "coordinates": {
+      "lat": 26.144477100427817,
+      "lng": 91.6454844545077
+    },
+    "status": "resolved",
+    "priority": "medium",
+    "reportedBy": "Citizen User",
+    "reportedAt": "2025-09-19T13:48:22.875Z",
+    "assignedTo": "Water Supply Department",
+    "assignedAt": "2025-09-19T14:19:20.562Z",
+    "department": "water-supply",
+    "media": [
+      "Screenshot 2024-06-10 224603.png"
+    ],
+    "voiceNote": null,
+    "updates": [
+      {
+        "date": "2025-09-19T14:19:20.562Z",
+        "note": "Assignment note: ngfds",
+        "by": "Authority"
+      }
+    ],
+    "archivedAt": "2025-09-19T14:19:36.804Z"
+  },
+  {
+    "id": "ISS-N9BAEA",
+    "type": "garbage",
+    "title": "Garbage Collection Issue",
+    "description": "overflowing garbage bin in chandmari ",
+    "location": "",
+    "coordinates": {
+      "lat": 26.18552855060129,
+      "lng": 91.77547508528954
+    },
+    "status": "resolved",
+    "priority": "high",
+    "reportedBy": "Citizen User",
+    "reportedAt": "2025-09-19T14:20:34.895Z",
+    "assignedTo": "Sanitation Department",
+    "assignedAt": "2025-09-19T14:21:43.886Z",
+    "department": "sanitation",
+    "media": [],
+    "voiceNote": null,
+    "updates": [
+      {
+        "date": "2025-09-19T14:21:43.886Z",
+        "note": "Assignment note: solve it at the earliest",
+        "by": "Authority"
+      }
+    ],
+    "archivedAt": "2025-09-19T14:29:45.890Z"
+  },
+  {
+    "id": "ISS-WD3DMM",
+    "type": "streetlight",
+    "title": "Street Light Issue",
+    "description": "wdf",
+    "location": "",
+    "coordinates": {
+      "lat": 26.185156960042928,
+      "lng": 91.77524988303993
+    },
+    "status": "resolved",
+    "priority": "high",
+    "reportedBy": "Citizen User",
+    "reportedAt": "2025-09-19T14:28:58.162Z",
+    "assignedTo": "Public Works Department",
+    "assignedAt": "2025-09-19T14:30:08.727Z",
+    "department": "public-works",
+    "media": [],
+    "voiceNote": null,
+    "updates": [
+      {
+        "date": "2025-09-19T14:30:08.727Z",
+        "note": "Assignment note: fdsa",
+        "by": "Authority"
+      }
+    ],
+    "archivedAt": "2025-09-19T16:12:12.929Z"
+  }
+]
