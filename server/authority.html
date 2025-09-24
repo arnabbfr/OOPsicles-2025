@@ -9,7 +9,7 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1> Government Authority Portal</h1>
+            <h1> LokLink - Government Authority Portal</h1>
             <p>Manage and resolve citizen-reported issues efficiently</p>
         </div>
 
@@ -32,7 +32,7 @@
                 <div class="stat-label">Resolved</div>
             </div>
             <div class="stat-card">
-                <button class="btn btn-danger" onclick="clearResolved()">🗑️ Clear Resolved</button>
+                <button class="btn btn-danger" onclick="clearResolved()"> Clear Resolved</button>
             </div>
         </div>
 
@@ -201,44 +201,44 @@
                     </div>
                     
                     <div class="issue-meta">
-                        <span>📍 ${issue.location || ''}</span>
-                        <span>⏰ ${issue.reportedAt || ''}</span>
-                        <span>👤 ${issue.reportedBy || ''}</span>
-                        <span>🚨 Priority: ${(issue.priority || '').toUpperCase()}</span>
+                        <span> ${issue.location || ''}</span>
+                        <span> ${issue.reportedAt || ''}</span>
+                        <span> ${issue.reportedBy || ''}</span>
+                        <span> Priority: ${(issue.priority || '').toUpperCase()}</span>
                     </div>
                     
                     ${issue.assignedTo ? `
                         <div class="issue-meta">
-                            <span>🏢 Assigned to: ${issue.assignedTo}</span>
-                            <span>📅 ${issue.assignedAt || ''}</span>
+                            <span> Assigned to: ${issue.assignedTo}</span>
+                            <span> ${issue.assignedAt || ''}</span>
                         </div>
                     ` : ''}
                 </div>
                 
                 <div class="issue-actions">
                     <button class="btn btn-primary" onclick="viewIssueDetails('${issue.id}')">
-                        👁️ View Details
+                         View Details
                     </button>
                     
                     ${issue.status === 'pending' ? `
                         <button class="btn btn-warning" onclick="assignIssue('${issue.id}')">
-                            📋 Assign Department
+                             Assign Department
                         </button>
                     ` : ''}
                     
                     ${issue.status === 'in-progress' ? `
                         <button class="btn btn-success" onclick="updateStatus('${issue.id}', 'resolved')">
-                            ✅ Mark Resolved
+                             Mark Resolved
                         </button>
                     ` : ''}
                     
                     <button class="btn btn-primary" onclick="addUpdate('${issue.id}')">
-                        📝 Add Update
+                         Add Update
                     </button>
                     
                     ${issue.status !== 'resolved' ? `
                         <button class="btn btn-warning" onclick="changePriority('${issue.id}')">
-                            🚨 Change Priority
+                             Change Priority
                         </button>
                     ` : ''}
                 </div>

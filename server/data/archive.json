@@ -84,5 +84,145 @@
       }
     ],
     "archivedAt": "2025-09-19T16:12:12.929Z"
+  },
+  {
+    "id": "ISS-STEJPK",
+    "type": "water-supply",
+    "title": "Water Supply Problem",
+    "description": "wertyuikl;",
+    "location": "",
+    "coordinates": {
+      "lat": 26.070611134764306,
+      "lng": 94.60976844484293
+    },
+    "status": "resolved",
+    "priority": "low",
+    "reportedBy": "Citizen User",
+    "reportedAt": "2025-09-23T10:48:06.019Z",
+    "assignedTo": "Sanitation Department",
+    "assignedAt": "2025-09-23T10:48:47.900Z",
+    "department": "sanitation",
+    "media": [],
+    "voiceNote": "voice_note.mp3",
+    "updates": [
+      {
+        "date": "2025-09-23T10:48:47.900Z",
+        "note": "Assignment note: qwertyujkl;'",
+        "by": "Authority"
+      }
+    ],
+    "archivedAt": "2025-09-23T10:49:16.701Z"
+  },
+  {
+    "id": "ISS-OZY2-Q",
+    "type": "road-repair",
+    "title": "Road Repair Required",
+    "description": "broken road",
+    "location": "",
+    "coordinates": {
+      "lat": 26.06886687749949,
+      "lng": 91.69168593313042
+    },
+    "status": "resolved",
+    "priority": "high",
+    "reportedBy": "Citizen User",
+    "reportedAt": "2025-09-23T18:24:13.638Z",
+    "assignedTo": "Public Works Department",
+    "assignedAt": "2025-09-23T18:25:01.349Z",
+    "department": "public-works",
+    "media": [],
+    "voiceNote": "voice_note.mp3",
+    "updates": [
+      {
+        "date": "2025-09-23T18:25:01.349Z",
+        "note": "Assignment note: solve it to the earliest",
+        "by": "Authority"
+      }
+    ],
+    "archivedAt": "2025-09-24T04:41:36.882Z"
+  },
+  {
+    "id": "ISS-AZUXFL",
+    "type": "road-repair",
+    "title": "Road Repair Required",
+    "description": "too many potholes",
+    "location": "",
+    "coordinates": {
+      "lat": 26.056012546968372,
+      "lng": 91.54419995298808
+    },
+    "status": "resolved",
+    "priority": "high",
+    "reportedBy": "Citizen User",
+    "reportedAt": "2025-09-24T05:40:19.928Z",
+    "assignedTo": "Public Works Department",
+    "assignedAt": "2025-09-24T05:41:57.886Z",
+    "department": "public-works",
+    "media": [],
+    "voiceNote": "voice_note.mp3",
+    "updates": [
+      {
+        "date": "2025-09-24T05:41:57.886Z",
+        "note": "Assignment note: fix it to the earliest",
+        "by": "Authority"
+      }
+    ],
+    "archivedAt": "2025-09-24T07:10:23.651Z"
+  },
+  {
+    "id": "ISS-OVAI2J",
+    "type": "streetlight",
+    "title": "Street Light Issue",
+    "description": "broken street light",
+    "location": "",
+    "coordinates": {
+      "lat": 26.1157917,
+      "lng": 91.7085933
+    },
+    "status": "resolved",
+    "priority": "high",
+    "reportedBy": "Citizen User",
+    "reportedAt": "2025-09-24T05:41:03.559Z",
+    "assignedTo": "Public Works Department",
+    "assignedAt": "2025-09-24T05:52:00.988Z",
+    "department": "public-works",
+    "media": [],
+    "voiceNote": "voice_note.mp3",
+    "updates": [
+      {
+        "date": "2025-09-24T05:52:00.988Z",
+        "note": "Assignment note: wertyukl",
+        "by": "Authority"
+      }
+    ],
+    "archivedAt": "2025-09-24T07:10:23.651Z"
+  },
+  {
+    "id": "ISS-GFZOMQ",
+    "type": "streetlight",
+    "title": "Street Light Issue",
+    "description": "bnm,.",
+    "location": "",
+    "coordinates": {
+      "lat": 26.1157917,
+      "lng": 91.7085933
+    },
+    "status": "resolved",
+    "priority": "high",
+    "reportedBy": "Citizen User",
+    "reportedAt": "2025-09-24T06:17:42.227Z",
+    "assignedTo": "Electrical Department",
+    "assignedAt": "2025-09-24T06:17:59.440Z",
+    "department": "electrical",
+    "media": [],
+    "voiceNote": null,
+    "updates": [
+      {
+        "date": "2025-09-24T06:17:59.440Z",
+        "note": "Assignment note: wertyujkl;",
+        "by": "Authority"
+      }
+    ],
+    "archivedAt": "2025-09-24T07:10:23.651Z"
   }
 ]

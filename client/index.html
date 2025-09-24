@@ -27,7 +27,7 @@
         }
 
         .header {
-            background: linear-gradient(135deg, #f2a516 0%, #f28907 100%);
+            background: linear-gradient(135deg, #430255 0%, #5db1dc 100%,  #25152c 100%);
             color: white;
             text-align: center;
             margin-bottom: 30px;
@@ -468,14 +468,14 @@
 <body>
     <div class="container">
         <div class="header">
-            <h1>🏛️ Civic Issue Portal</h1>
+            <h1>LokLink - Civic Issue Portal</h1>
             <p>Report civic issues and track community progress</p>
         </div>
 
         <div class="main-content">
             <!-- Report Issue Section -->
             <div class="report-section">
-                <h2 class="section-title">📋 Report an Issue</h2>
+                <h2 class="section-title"> Report an Issue</h2>
                 
                 <form id="issueForm">
                     <div class="form-group">
@@ -503,7 +503,7 @@
                         <label>Voice Note (Optional):</label>
                         <div class="voice-note-section">
                             <button type="button" class="voice-btn" id="voiceBtn">
-                                🎤 Record Voice Note
+                                 Record Voice Note
                             </button>
                             <span id="recordingStatus"></span>
                         </div>
@@ -516,7 +516,7 @@
                     <div class="form-group">
                         <label class="photo-evidence-title">Upload Photos/Videos:</label>
                         <div class="file-upload-area" onclick="document.getElementById('fileInput').click()">
-                            <p>📷 Click to upload photos or videos</p>
+                            <p> Click to upload photos or videos</p>
                             <input type="file" id="fileInput" multiple accept="image/*,video/*" style="display: none;">
                         </div>
                         <div class="uploaded-files" id="uploadedFiles"></div>
@@ -527,10 +527,10 @@
                         <div class="location-section">
                             <div class="location-options">
                                 <button type="button" class="location-btn" onclick="useCurrentLocation()">
-                                    📍 Use Current Location
+                                     Use Current Location
                                 </button>
                                 <button type="button" class="location-btn" onclick="pointOnMap()">
-                                    🗺️ Point on Map
+                                     Point on Map
                                 </button>
                             </div>
                             <input type="text" id="manualAddress" placeholder="Or type address manually...">
@@ -544,7 +544,7 @@
 
             <!-- Map Section -->
             <div class="map-section">
-                <h2 class="section-title">🗺️ City Issues Map</h2>
+                <h2 class="section-title"> City Issues Map</h2>
                 
                 <div class="map-container" id="mapContainer">
                     <div id="map" style="height: 100%; width: 100%;"></div>
@@ -589,7 +589,7 @@
         let mapMarkers = [];
 
         // For production, replace with your server's public IP/domain
-        const API_BASE = 'http://192.168.1.100:3000/api'; // Replace 192.168.1.100 with YOUR actual IP
+       const API_BASE = location.origin.replace(/\/$/, '') + '/api';
 
         // Initialize the app
         document.addEventListener('DOMContentLoaded', function() {
@@ -633,7 +633,7 @@
 
                     mediaRecorder.start();
                     isRecording = true;
-                    voiceBtn.textContent = '⏹️ Stop Recording';
+                    voiceBtn.textContent = ' Stop Recording';
                     voiceBtn.classList.add('recording');
                     recordingStatus.textContent = 'Recording...';
                 } catch (error) {
@@ -799,19 +799,20 @@
             const description = document.getElementById('description').value;
             const manualAddress = document.getElementById('manualAddress').value;
 
-            // Upload selected files first
+            // Validate required fields
+            if (!type || !description) {
+                alert('Please fill all required fields.');
+                return;
+            }
+            if (!currentLocation && !manualAddress) {
+                alert('Please provide a location (use current location, point on map, or enter address).');
+                return;
+            }
+
+            // Use already uploaded file URLs if available
             let mediaUrls = [];
-            if (uploadedFiles.length) {
-                const form = new FormData();
-                uploadedFiles.forEach(f => form.append('files', f));
-                try {
-                    const upRes = await fetch(`${API_BASE}/upload`, { method: 'POST', body: form });
-                    if (!upRes.ok) throw new Error('upload failed');
-                    const upJson = await upRes.json();
-                    mediaUrls = (upJson.files || []).map(f => f.url);
-                } catch (e) {
-                    alert('Some files failed to upload. Proceeding without them.');
-                }
+            if (uploadedFiles.length && uploadedFiles[0].url) {
+                mediaUrls = uploadedFiles.map(f => f.url);
             }
 
             const newIssuePayload = {
@@ -986,7 +987,7 @@
             issueItem.innerHTML = `
                 <div>${(issue.type || '').replace('-', ' ').toUpperCase()}</div>
                 <div>${issue.description || ''}</div>
-                <div>📍 ${address} ${timestamp ? '| ⏰ ' + timestamp : ''}</div>
+                <div> ${address} ${timestamp ? '|  ' + timestamp : ''}</div>
                 <div>Status: ${statusText[issue.status] || issue.status}</div>
             `;
             return issueItem;
